@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="home.css">
+  <title>Travels</title>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">
+      <h1>Racing-Moto</h1>
+    </div>
+    <div class="nav-links">
+      <a href="documents.html">Documents</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="nav-buttons">
+      <button id="logoutBtn">Logout</button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <img src="images/home.jpeg" class="bg-image" alt="Travel" />
+    <div class="hero-content">
+      <h2>Your Safe Travel Journey is Our Goal</h2>
+      <h1>Have a Nice Day — Get Your Booking</h1>
+    </div>
+  </section>
+
+  <!-- Book Now Button -->
+  <a href="booking.html" class="book-now-btn">BOOK NOW</a>
+
+  <script>
+    // --- Protect the page ---
+    const loggedInEmail = localStorage.getItem("loggedInEmail");
+    if (!loggedInEmail) {
+      //window.location.href = "index.html";
+    }
+
+    // --- Logout functionality ---
+    document.getElementById("logoutBtn").addEventListener("click", function() {
+      localStorage.removeItem("loggedInEmail");
+      window.location.href = "index.html";
+    });
+  </script>
+</body>
+</html>

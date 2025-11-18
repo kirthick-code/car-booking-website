@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Booking Form</title>
+
+<!-- Razorpay Script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        background: #f0f0f0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .booking-container {
+        width: 90%;
+        max-width: 420px;
+        background: #fff;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-weight: bold;
+        display: block;
+        margin-top: 10px;
+    }
+
+    input, textarea, select {
+        width: 100%;
+        padding: 10px;
+        margin-top: 6px;
+        border: 1px solid #bbb;
+        border-radius: 8px;
+        font-size: 16px;
+    }
+
+    .info-box {
+        background: #ffe0b2;
+        padding: 10px;
+        border-left: 4px solid #ff9800;
+        border-radius: 6px;
+        margin-bottom: 15px;
+        font-weight: bold;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 12px;
+        background: #28a745;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 18px;
+        margin-top: 15px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    .btn:active {
+        background: #1e7e34;
+    }
+</style>
+</head>
+<body>
+
+<div class="booking-container">
+    <h2>Vehicle Booking</h2>
+
+    <div class="info-box">
+        Advance Payment: ₹1000 (Will be paid through Razorpay)
+    </div>
+
+    <form id="bookingForm">
+        <label>Your Name</label>
+        <input type="text" id="userName" required>
+
+        <label>Phone Number</label>
+        <input type="text" id="userPhone" required maxlength="10">
+
+        <label>Pickup Location</label>
+        <input type="text" id="pickup" required>
+
+        <label>Drop Location</label>
+        <input type="text" id="drop" required>
+
+        <label>Travel Date</label>
+        <input type="date" id="date" required>
+
+        <label>Vehicle</label>
+        <input type="text" id="vehicleType" readonly>
+        
+        <button type="button" class="btn" onclick="startPayment()">Confirm Booking</button>
+    </form>
+</div>
+
+<script>
+    // Read vehicle from URL
+    const params = new URLSearchParams(window.location.search);
+    const vehicle = params.get("vehicle") || "Not Selected";
+    document.getElementById("vehicleType").value = vehicle;
+
+    // Razorpay Payment + Save Booking
+    function startPayment() {
+        const userName = document.getElementById("userName").value;
+        const userPhone = document.getElementById("userPhone").value;
+        const pickup = document.getElementById("pickup").value;
+        const drop = document.getElementById("drop").value;
+        const date = document.getElementById("date").value;
+
+        if(!userName || !userPhone || !pickup || !drop || !date){
+            alert("Please fill all details");
+            return;
+        }
+
+        const options = {
+            "key": "YOUR_RAZORPAY_KEY", 
+            "amount": 1000 * 100,  
+            "currency": "INR",
+            "name": "Vehicle Booking",
+            "description": "Advance Payment",
+            "handler": function (response) {
+
+                // Save Booking to Backend
+                fetch("http://localhost:5000/api/bookings", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        userName,
+                        userPhone,
+                        pickup,
+                        drop,
+                        date,
+                        vehicleType: vehicle,
+                        amount: 1000,
+                        paymentId: response.razorpay_payment_id,
+                        status: "Paid"
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    alert("✅ Booking Confirmed! SMS will be sent.");
+                    window.location.href = "success.html";
+                });
+            }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+    }
+</script>
+
+</body>
+</html>
